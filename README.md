@@ -1,4 +1,4 @@
-# FedWMSAM
+# [NeurIPS 2025] FedWMSAM: Fast & Flat Federated Learning via Weighted Momentum and Sharpness-Aware Minimization
 
 **Fast & Flat Federated Learning via Weighted Momentum and Sharpness-Aware Minimization (NeurIPS 2025)**
 
