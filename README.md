@@ -57,9 +57,7 @@ $$
   Perturbations raise variance $\sigma_{\rho}^{2}=\sigma^{2}+(L\rho)^{2}$; the bound
 
 $$
-\frac{1}{R}\sum_{r=1}^{R} \mathbb{E}\|\nabla f(x_r)\|^{2}
-\lesssim \frac{L\Delta \sigma_\rho^{2}}{S K R}
-+ \frac{L\Delta}{R}\left(1+\frac{N^{2/3}}{S}\right)
+\frac{1}{R}\sum_{r=1}^{R} \mathbb{E}\|\nabla f(x_r)\|^{2} \lesssim \frac{L\Delta \sigma_\rho^{2}}{S K R} + \frac{L\Delta}{R}\left(1+\frac{N^{2/3}}{S}\right)
 $$
 
   makes **noise** and **heterogeneity** explicit → damp momentum late.
