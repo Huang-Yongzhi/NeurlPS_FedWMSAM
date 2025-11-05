@@ -21,7 +21,9 @@ print("##=============================================##")
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', choices=['CIFAR10', 'CIFAR100'], type=str, default='CIFAR10')             # select dataset
 parser.add_argument('--model', choices=['LeNet', 'ResNet18'], type=str, default='ResNet18')                # select model
-parser.add_argument('--non-iid', action='store_true', default=True)                                       # activate if use heterogeneous dataset 
+# allow both flag style and explicit true/false: "--non-iid" | "--non-iid true/false"
+parser.add_argument('--non-iid', nargs='?', const=True, type=lambda s: str(s).lower() in ['1','true','yes'], default=True)  # activate if use heterogeneous dataset 
+parser.add_argument('--iid', action='store_true', default=False)                                          # force IID dataset (overrides --non-iid)
 parser.add_argument('--split-rule', choices=['Dirichlet', 'Pathological'], type=str, default='Dirichlet')  # select the dataset splitting rule
 parser.add_argument('--split-coef', default=0.1, type=float)                                                  # --> if Dirichlet: select the Dirichlet coefficient (i.e. 0.1, 0.3, 0.6, 1)
                                                                                                               # --> if Pathological: select the Dirichlet coefficient (i.e. 3, 5)
@@ -55,6 +57,9 @@ parser.add_argument('--method', choices=['FedAvg', 'FedCM', 'FedDyn', 'SCAFFOLD'
                                          'FedGamma', 'FedSpeed', 'FedSMOO', 'FedLESAM', 'FedLESAM_D','FedLESAM_S','FedWMSAM'], type=str, default='FedWMSAM')
                                          
 args = parser.parse_args()
+# if --iid is specified, override non_iid flag
+if args.iid:
+    args.non_iid = False
 print(args)
 
 torch.manual_seed(args.seed)
@@ -63,7 +68,7 @@ np.random.seed(args.seed)
 torch.backends.cudnn.deterministic = True
 
 if torch.cuda.is_available():
-    device = torch.device(args.cuda)
+    device = torch.device(f"cuda:{args.cuda}")
 else:
     device = torch.device("cpu")
 
