@@ -7,6 +7,8 @@ import torch.nn as nn
 from torch.utils import data
 import torch.nn.functional as F
 import torchvision.transforms as transforms
+from PIL import Image
+from scipy import io
 
 class DatasetObject:
     def __init__(self, dataset, n_client, seed, rule, unbalanced_sgm=0, rule_arg='', data_path=''):

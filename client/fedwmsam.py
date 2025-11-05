@@ -18,6 +18,7 @@ class fedwmsam(Client):
         self.sam_optimizer = WMSAM(self.model.parameters(), self.optimizer, rho=self.args.rho)
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=lr, weight_decay=self.args.weight_decay)
         self.loss = loss_gamma
+        self.backward_count = 0
 
     def train(self):
         # local training
@@ -30,6 +31,7 @@ class fedwmsam(Client):
                 self.sam_optimizer.paras = [inputs, labels, self.loss, self.model, momentum_list, self.args.alpha]
                 differ_vector = self.target_model - param_to_vector(self.model).to(self.device)
                 self.sam_optimizer.step(differ_vector)
+                self.backward_count += 1
 
                 torch.nn.utils.clip_grad_norm_(parameters=self.model.parameters(), max_norm=self.max_norm)
                 self.optimizer.step()
@@ -38,6 +40,8 @@ class fedwmsam(Client):
         last_state_params_list = get_mdl_params(self.model)
         self.comm_vecs['local_update_list'] = last_state_params_list - self.received_vecs['Params_list']
         self.comm_vecs['local_model_param_list'] = last_state_params_list
+
+        print("   [WMSAM] backward_count= {:d}".format(self.backward_count), flush=True)
 
         return self.comm_vecs
 

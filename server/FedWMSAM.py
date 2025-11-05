@@ -55,6 +55,13 @@ class FedWMSAM(Server):
         # zero delta_c for the training on the next communication round
         self.delta_c *= 0.
         self.momentum = Averaged_update / self.local_iteration / self.lr * self.args.lr_decay * -1.
+        try:
+            mom_norm = torch.norm(self.momentum).item()
+        except Exception:
+            mom_norm = float(np.linalg.norm(self.momentum))
+        print("   [FedWMSAM] alpha={:.4f}  value(mean)={:.4f}  |momentum|={:.4f}  local_iter={:.2f}  lr={:.6f}".format(
+            self.args.alpha, value, mom_norm, float(self.local_iteration), float(self.lr)
+        ), flush=True)
         return self.server_model_params_list + self.args.global_learning_rate * Averaged_update
 
     def postprocess(self, client, received_vecs):
@@ -68,13 +75,10 @@ class FedWMSAM(Server):
 
 
 def cosine_similarity(vector_a, vector_b):
-    dot_product = np.dot(vector_a, vector_b)
-
-    norm_a = np.linalg.norm(vector_a)
-    norm_b = np.linalg.norm(vector_b)
-    
-    if norm_a == 0 or norm_b == 0:
-        return 0
-
-    similarity = dot_product / (norm_a * norm_b)
-    return similarity + 1
+    import torch
+    a = vector_a if isinstance(vector_a, torch.Tensor) else torch.as_tensor(vector_a)
+    b = vector_b if isinstance(vector_b, torch.Tensor) else torch.as_tensor(vector_b)
+    denom = a.norm() * b.norm()
+    if denom.item() == 0:
+        return 0.0
+    return (torch.dot(a, b) / denom).item() + 1.0

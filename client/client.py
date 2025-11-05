@@ -26,6 +26,7 @@ class Client():
         self.dataset = data.DataLoader(Dataset(dataset[0], dataset[1], train=True, dataset_name=self.args.dataset), batch_size=self.args.batchsize, shuffle=True)
         
         self.max_norm = 10
+        self.backward_count = 0
     
     def train(self):
         # local training
@@ -41,6 +42,7 @@ class Client():
                 
                 self.optimizer.zero_grad()
                 loss.backward()
+                self.backward_count += 1
                 
                 # Clip gradients to prevent exploding
                 torch.nn.utils.clip_grad_norm_(parameters=self.model.parameters(), max_norm=self.max_norm) 
@@ -49,5 +51,7 @@ class Client():
         last_state_params_list = get_mdl_params(self.model)
         self.comm_vecs['local_update_list'] = last_state_params_list - self.received_vecs['Params_list']
         self.comm_vecs['local_model_param_list'] = last_state_params_list
+        
+        print("   [Client] backward_count= {:d}".format(self.backward_count), flush=True)
 
         return self.comm_vecs

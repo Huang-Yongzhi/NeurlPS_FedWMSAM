@@ -67,7 +67,7 @@ class WMSAM(torch.optim.Optimizer):
         inputs, labels, loss_func, model, momentum_list, alpha = self.paras
 
         self.first_step(g_update)
-        param_list = param_to_vector(model)
+        param_list = param_to_vector(model).to(momentum_list.device)
         predictions = model(inputs)
         loss = loss_func(predictions, labels, param_list, momentum_list, alpha)
         self.zero_grad()
